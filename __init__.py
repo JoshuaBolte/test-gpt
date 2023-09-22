@@ -1,9 +1,3 @@
-# i want to develop an interface where i can state a prompt to chat gpt3
-# after eacht prompt the function chall look into the answer. if the answer ends with the word "terminal" the loop in the function will break
-# the single answers will be sent to an azure text to speech service
-# lets start, i will give further comments in the code
-
-# import the openai library
 import os
 import time
 import requests
@@ -13,10 +7,7 @@ from queue import Queue
 import threading
 import openai 
 
-# import azure.functions as func
 import logging
-
-from pydub import AudioSegment
 
 from flask import Flask, send_file, send_from_directory, abort, request, jsonify
 
@@ -25,9 +16,7 @@ from azure.cognitiveservices.speech import AudioDataStream, SpeechConfig, Speech
 from azure.cognitiveservices.speech.audio import AudioOutputConfig
 from azure.cognitiveservices.speech import SpeechSynthesisOutputFormat
 
-# define a function to send a prompt to chat gpt and send new prompts with the word "next" until the answer ends with the word "terminal"
-
-#define variables for the openai, speech service urls and api keys
+# Necessery Information for requested Services
 
 gptkey = "a38e15b14a7b49b2a82ba0fd213aa081"
 url = "https://testgpt4einsamapp.openai.azure.com/openai/deployments/testgpt4einsamapp/chat/completions?api-version=2023-05-15"
@@ -39,24 +28,18 @@ service_region =  "westeurope"
 language = "de-DE"
 voice = "de-DE-KatjaNeural"
 
-# define the speech config for the azure text to speech service
+# TTS Config
 
 speech_config = SpeechConfig(subscription=speech_key, region=service_region)
 speech_config.speech_synthesis_voice_name = voice
 speech_config.set_speech_synthesis_output_format(SpeechSynthesisOutputFormat["Riff24Khz16BitMonoPcm"])
 # speech_config.set_service_property(name="speechlog", value="true")
 
-#define a variable for the prompt
-
-promptinit = "Bitte erzaehle mir eine spannende geschichte"
-
-#define a variable for the system role for the chat prompt
+# Preprompt
+promptinit = "Hi, wie ist das Wetter heute?"
 
 sys_promptinit = "Du bist ein freundlicher Gespraechspartner. Bitte formuliere deine antworten so, dass sie nach gesprochener sprache klingen. fasse dich kurz und beschränke deine antworten auf maximal 3 sätze. Greife informationen aus vorhergehenden nachrichten auf und fühle dich frei auch rückfragen zu stellen." 
 
-#define the function for the chat interaction with gpt3
-
-#we want to use a dedicate azure openai model for the chat interaction. the endpoint of the model is given in the url variable
 
 def gpt_chat(prompt,sys_prompt):
 
@@ -161,16 +144,19 @@ def text_to_speech(queue):
 
 app = Flask(__name__)
 
-@app.post("/")
+@app.post("/API/")
 def index():
+    print("test")
     sys_prompt = ""
     if request.is_json:
         try:
             req_body = request.get_json()
+            prompt = req_body.get('text')
         except:
             return jsonify({"error": "Invalid JSON"}), 400
-        prompt = req_body.get('text')
+        
         chat_loop(prompt,sys_prompt)
+        audio_binary = None
         #we need to return the audio file to the user
         with open("audio/answer_0.wav", "rb") as f:
                 audio_binary = f.read()
@@ -180,35 +166,3 @@ def index():
         )
     else:
         return jsonify({"error": "Request body must be JSON"}), 400
-
-# app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
-
-# @app.route(route="http_trigger", methods=["POST"])
-# def http_trigger(req: func.HttpRequest) -> func.HttpResponse:
-#     logging.info('Python HTTP trigger function processed a request.')
-#     req_body = req.get_json()
-#     prompt = req_body.get('prompt')
-#     sys_prompt = req_body.get('sys_prompt')
-#     chat_loop(prompt,sys_prompt)
-#     #we need to return the audio file to the user
-#     with open("audio/answer_0.wav", "rb") as f:
-#             audio_binary = f.read()
-#     return func.HttpResponse(
-#         audio_binary,
-#         headers={
-#             "Content-Type": "audio/wav"
-#         }
-#     )
-
-def main():
-    prompt = ""
-    sys_prompt = ""
-    chat_loop(prompt,sys_prompt)
-
-# we need to call the main function to start the chat loop
-
-# if __name__ == "__main__":
-#     main()
-
-# what is the shell code to start the program?
-# python gpt-stream.py
