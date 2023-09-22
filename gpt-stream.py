@@ -13,12 +13,12 @@ from queue import Queue
 import threading
 import openai 
 
-import azure.functions as func
+#import azure.functions as func
 import logging
 
-from pydub import AudioSegment
+#from pydub import AudioSegment
 
-from flask import Flask, send_file, send_from_directory, safe_join, abort
+#from flask import Flask, send_file, send_from_directory, safe_join, abort
 
 import azure.cognitiveservices.speech as speechsdk
 from azure.cognitiveservices.speech import AudioDataStream, SpeechConfig, SpeechSynthesizer, SpeechSynthesisOutputFormat
@@ -44,7 +44,7 @@ voice = "de-DE-KatjaNeural"
 speech_config = SpeechConfig(subscription=speech_key, region=service_region)
 speech_config.speech_synthesis_voice_name = voice
 speech_config.set_speech_synthesis_output_format(SpeechSynthesisOutputFormat["Riff24Khz16BitMonoPcm"])
-speech_config.set_service_property(name="speechlog", value="true")
+#speech_config.set_service_property(name="speechlog", value="true")
 
 #define a variable for the prompt
 
