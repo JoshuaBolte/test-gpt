@@ -13,12 +13,12 @@ from queue import Queue
 import threading
 import openai 
 
-import azure.functions as func
+# import azure.functions as func
 import logging
 
 from pydub import AudioSegment
 
-from flask import Flask, send_file, send_from_directory, safe_join, abort
+from flask import Flask, send_file, send_from_directory, abort, request, jsonify
 
 import azure.cognitiveservices.speech as speechsdk
 from azure.cognitiveservices.speech import AudioDataStream, SpeechConfig, SpeechSynthesizer, SpeechSynthesisOutputFormat
@@ -161,17 +161,25 @@ def text_to_speech(queue):
 
 app = Flask(__name__)
 
-@app.route("/<prompt>")
-def index(prompt):
+@app.post("/")
+def index():
     sys_prompt = ""
-    chat_loop(prompt,sys_prompt)
-    #we need to return the audio file to the user
-    with open("audio/answer_0.wav", "rb") as f:
-            audio_binary = f.read()
-    return app.response_class(
-        audio_binary,
-        mimetype="audio/wav"
-    )
+    if request.is_json:
+        try:
+            req_body = request.get_json()
+        except:
+            return jsonify({"error": "Invalid JSON"}), 400
+        prompt = req_body.get('text')
+        chat_loop(prompt,sys_prompt)
+        #we need to return the audio file to the user
+        with open("audio/answer_0.wav", "rb") as f:
+                audio_binary = f.read()
+        return app.response_class(
+            audio_binary,
+            mimetype="audio/wav"
+        )
+    else:
+        return jsonify({"error": "Request body must be JSON"}), 400
 
 # app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
