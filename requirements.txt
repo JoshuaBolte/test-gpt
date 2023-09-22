@@ -5,3 +5,4 @@ Flask-RESTful
 Flask-JWT
 openai
 azure-cognitiveservices-speech
+pydub
