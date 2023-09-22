@@ -1,0 +1,9 @@
+# please write the requirements for the app
+
+Flask
+Flask-RESTful
+Flask-JWT
+SQLAlchemy
+psycopg2
+openai
+azure-cognitiveservices-speech

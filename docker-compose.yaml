@@ -1,0 +1,16 @@
+# please define the corresponding docker compose file for the service
+
+version: '3.7'
+services:
+  web:
+    build: .
+    ports:
+      - "6060:6060"
+    volumes:
+      - .:/code
+    environment:
+      FLASK_ENV: development
+  redis:
+    image: "redis:alpine"
+
+# please define the corresponding docker file for the service
